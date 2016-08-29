@@ -1,0 +1,37 @@
+SetUp Requirements:
+
+1. RHEL 7.x or CentOS 7.x server ( can be VM )
+2. Python version 3.4 or above
+3. download oneview python library from https://github.com/HewlettPackard/python-hpOneView and follow the steps 
+   specified in https://github.com/HewlettPackard/python-hpOneView/blob/master/README.md
+4. install following python modules 
+	a. pika-0.10.0 to be installed on python https://pypi.python.org/pypi/pika
+	b. library future-0.15.2, 
+	c. setuptools-18.3.1
+Notes:
+	The future library can be downloaded at https://pypi.python.org/pypi/future
+	The setuptools-18.3.1 library can be downloaded at https://pypi.python.org/pypi/setuptools/18.3.1
+
+It is assumed that OneView 2.x is configured and it is managing c7000 and blades.
+
+
+scmbAlert script listens to all the critical alerts generated from OneView and logs it to the file in the syslog format.
+
+
+Running the script:
+
+Pre-requisite: set appliance ip, username and password in the scmbAlerts.py ( at the beginning of the file)
+
+1. unzip the scmbAlerts.zip file
+2. cd into scmbAlerts folder
+3. run below command
+  
+  ./scmbAlerts.py
+
+ 
+ Note: Script automatically manages certificates required for connecting to OneView Rabbit MQs.
+ Following tasks are taken care. User doesn't need to do anything.
+1. The script generates the certificate  to connect to oneview if it does not exists
+2. The script download a copy of the SSL key and certificate. 
+
+In the production, above script can be called from cron tab to start as a service running in the back ground.
