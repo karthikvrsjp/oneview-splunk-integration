@@ -1,8 +1,8 @@
 ﻿##############################################################################
-# Name: generate_syslogs_from_oneview.ps1 
+# Name: generate_syslogs_from_oneview.ps1
 # Description: main script to call syslog functions
-# 
-# Date: Mar 2016 
+#
+# Date: Mar 2016
 ##############################################################################
 
 Import-Module .\OneViewJsonToSyslog.psm1
@@ -17,10 +17,10 @@ $Global:appPassword     = $null
 if($Global:appPassword -eq $null){
 [System.Security.SecureString]$tempPassword = Read-Host "Enter onetime OneView Appliance Password to be connected! " -AsSecureString
 $Global:appPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($tempPassword))
-}  
+}
 
 try
-{  
+{
     $version=(Get-HPOVXApiVersion -appliance $ApplianceIP).currentVersion
 
    if($version -eq 300)
@@ -49,8 +49,10 @@ catch
 GetAlerts -ApplianceIP $ApplianceIP -UserName $UserName -password $Global:appPassword -mode "batch"
 
 #Tasks to Syslog
-#GetTasks -ApplianceIP $ApplianceIP -UserName $UserName -password $Global:appPassword -mode "batch"
+GetTasks -ApplianceIP $ApplianceIP -UserName $UserName -password $Global:appPassword -mode "batch"
 
 #Audits to syslogs
-#GetAuditlogs -ApplianceIP $ApplianceIP -UserName $UserName -password $Global:appPassword -mode "batch"
+GetAuditlogs -ApplianceIP $ApplianceIP -UserName $UserName -password $Global:appPassword -mode "batch"
 
+#Cleanup Modules
+FinalCleanup
