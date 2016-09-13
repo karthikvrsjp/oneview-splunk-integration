@@ -15,13 +15,13 @@ But these logs and data is in JSON format. If you are integrating with Splunk, y
 The standard log format is based the Syslog RFC 5424 http://tools.ietf.org/html/rfc5424
  
 The basic format looks as follows:
- 
+
 <version> <timestamp> <log-level> <app-name> <procid> <msgid> <structured-data> <message>
- 
+
 The log record consists of several fields (enclosed in <>) which are all separated by a single space. The version identifier is used as record separator.
- 
+
 Here is an example record:
-  
+
 OV-1 2016-05-10T20:46:05.181+02:00 INFO HRApp – ABC-12345 [audit@5095 action="login" result="success" user="guest"] Login successful: guest user
 
 High level architecture:
