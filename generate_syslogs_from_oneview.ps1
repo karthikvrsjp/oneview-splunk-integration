@@ -8,14 +8,14 @@
 Import-Module .\OneViewJsonToSyslog.psm1
 Import-Module .\HPOneView.200.psm1
 
-$ApplianceIP = "10.54.31.211"
-$UserName = "Administrator"
-$Global:authProvider    = "LOCAL"
-$Global:appPassword     = $null
+$ApplianceIP         = "10.10.10.1"
+$UserName            = "Administrator"
+$Global:authProvider = "LOCAL"
+$Global:appPassword  = $null
 
 
 if($Global:appPassword -eq $null){
-[System.Security.SecureString]$tempPassword = Read-Host "Enter onetime OneView Appliance Password to be connected! " -AsSecureString
+[System.Security.SecureString]$tempPassword = Read-Host "Enter one-time OneView Appliance Password to be connected!" -AsSecureString
 $Global:appPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($tempPassword))
 }
 

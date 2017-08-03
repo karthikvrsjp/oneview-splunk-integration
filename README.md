@@ -1,61 +1,68 @@
-# oneview-splunk-integration
-Helps to send OneView audit logs and alerts data to Splunk.
+# Splunk Integration with OneView
+This script attaches to a OneView instance and extracts the Alerts, Tasks, and
+Audit logs from the appliance.  It formats the log files in syslog format.  When
+used in conjunction with a Splunk Universal Forwarder configured to monitor the
+directory housing the extracted log files, these files are then forwarded to a
+Splunk Indexer instance for analysis.
 
-Business Problem:
+# Prerequisites
+  1. Install `OneView POSH Library` (https://github.com/HewlettPackard/POSH-HPOneView.git)
+  2. Python 3.5
 
-Most IT businesses requires auditing of your IT infrastructure. You need to store your infrastructure logs into Central logging system. 
-HPE OneView stores audit logs and alerts data for the servers it is managing. You need a mechanism to send those logs and data 
-into central log system like Splunk.
+# Supported OneView versions
+OneView 1.2, 2.0, 3.0
 
-Solution OneView:
+# How To
+1. Modify the "generate_syslogs_from_oneview.ps1" file to reflect the IP address of the OneView
+   Appliance (ApplianceIP) and the Administrative user (UserName).  The authProvider can be left
+   at "LOCAL" assuming local authentication methods are used.  The OneView appliance password
+   can be hard-coded in the "Global.appPassword" field.  If left $null the script will prompt
+   the user to enter the one-time password.  
 
-HPE OneView allows user to dowload audit logs and alerts data through REST APIs or through UI ( only audit logs). 
-But these logs and data is in JSON format. If you are integrating with Splunk, your logs files should be in syslog format.
+Example:
 
-The standard log format is based the Syslog RFC 5424 http://tools.ietf.org/html/rfc5424
- 
-The basic format looks as follows:
+```
+   $ApplianceIP         = "10.10.10.1"
+   $UserName            = "Administrator"
+   $Global:authProvider = "LOCAL"
+   $Global:appPassword  = $null
+```
 
-<version> <timestamp> <log-level> <app-name> <procid> <msgid> <structured-data> <message>
+2. Configure a Splunk Universal Forwarder to monitor the directory housing the extracted
+   log files.  These files are then pushed to the configured Splunk Indexer.
 
-The log record consists of several fields (enclosed in <>) which are all separated by a single space. The version identifier is used as record separator.
+   Sample Splunk inputs.conf file:
+```
+   [default]
+   host = <local hostname>
+   [script://$SPLUNK_HOME\bin\scripts\splunk-wmi.path]
+   disabled = 0
+   [monitor:///<directory containing extracted syslog files>]
+   disabled=false
+   sourcetype=syslog
+```
 
-Here is an example record:
+   Sample Splunk outputs.conf file:
+```
+   [tcpout]
+   defaultGroup=my_indexers
+   [tcpout:my_indexers]
+   server=<splunk indexer hostname or IP>:9997
+   [tcpout-server://<splunk indexer hostname or IP>:9997]
+```
 
-OV-1 2016-05-10T20:46:05.181+02:00 INFO HRApp – ABC-12345 [audit@5095 action="login" result="success" user="guest"] Login successful: guest user
+3. Configure a Splunk Enterprise instance and start a listener process on port 9997.
 
-High level architecture:
+```   
+   C:\>splunk enable listen 9997
+   Listening for Splunk data on TCP port 9997.
 
-- Scripts will run on Windows VM and connect to OneView
-- Scripts convert JSON data into syslog format
-- Splunk agent will be configured on Windows VM to pick up the logs
-- Splunk agent will push the logs to central Splunk server
-- Scripts can be scheduled through scheduler
+   C:\>splunk display listen
+   Receiving is enabled on port 9997.
+```
 
-Pre-requisites to setup the integration environment:
+Command-line to execute the script:
 
-- Windows VM
-- Access to OneView appliance
-- Splunk agent configured on Windows VM
-- Splunk server to receive the logs
-- Scripts
-
-How to run scripts:
-
-- Copy the scripts to a folder
-- Run below command from Windows VM
-  ./generate_syslogs_from_oneview.ps1
-
-Notes about scripts:
-
-All scripts are written in powershell langauge.
-- generate_syslogs_from_oneview.ps1
-  This is main script which takes user inputs and invokes library.
-- OneViewJsonToSyslog.psm1
-  This is library contains methods to convert JSON data to syslog format
-- HPOneView.psm1
-  This is core HPE OneView powershell library - which connect to OneView using REST APIs.
-
-The scmb folder within repo is helpful if you are interested to listen on HPE OneView message bus ( SCMB )
-instead of pulling alerts data from activity page.
-
+```
+C:\Splunk_Integration\generate_syslogs_from_oneview.ps1
+```
